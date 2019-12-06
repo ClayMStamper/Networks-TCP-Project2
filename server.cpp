@@ -146,21 +146,31 @@ int main(int argc, char *argv[]) {
             //list of <clientIP, seconds online>
             WriteLog("Received a  \"#LIST\" request from agent \"" + ipAddress + "\"");
 
-            if (std::find(agents.begin(), agents.end(), ipAddress) != agents.end()) {
-                for (size_t i = 0; i < agents.size(); i++) {
-                    //save agent entry and its corresponding time stamp to log
-                    double elapsedTime = difftime(time(NULL), timeStamps[i]);
+            std::string log = "Received a  \"#LEAVE\" request from agent \"" + ipAddress + "\"";
+            WriteLog(log);
 
-                    //double to string
-                    std::stringstream s;
-                    s << elapsedTime;
-                    std::string timeInseconds = s.str();
-
-                    //write
-                    str = "<" + agents[i] + ", " + timeInseconds + ">\n";
-                    write(client_socket, str.c_str(), str.length());
+            int index = -1;
+            for (int i = 0; i < agents.size(); i++) {
+                //if match
+                if (agents[i] == ipAddress) {
+                    index = i;
                 }
+            }
+
+            if (index != -1) {
+                //save agent entry and its corresponding time stamp to log
+                double elapsedTime = difftime(time(NULL), timeStamps[index]);
+
+                //double to string
+                std::stringstream s;
+                s << elapsedTime;
+                std::string timeInseconds = s.str();
+
+                //write
+                str = "<" + agents[index] + ", " + timeInseconds + ">\n";
+                write(client_socket, str.c_str(), str.length());
                 WriteLog("Responded to agent \"" + ipAddress + "\" with list of active agents.");
+
             } else
                 WriteLog(log = "No response is supplied to agent \"" + ipAddress + "\"");
 
